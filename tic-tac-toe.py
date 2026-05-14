@@ -20,7 +20,7 @@ WINS = [
 # Function that prints the full tic tac toe board for played moves
 def printBoard(board):
     printList = []
-    for index in board:                                         # replaces b with a blank space of the displayed game board
+    for index in board:                                         # replaces b with a blank space on the displayed game board
         if index.lower() == 'b':
             printList.append(' ')
         else:
@@ -46,12 +46,13 @@ def game_state(board):
         return 'B'
 
 
-# Function to
+# Function to generate a tree of all possible future moves for the current board. It creates a node for each move. 
 def game_tree(board, turn):
     root = Node(board.copy(), turn)
 
     state = game_state(board)
 
+    # base case that assigns rating to the leaves of the tree
     if state == 1:
         root.rating = 1
         return root
@@ -63,7 +64,7 @@ def game_tree(board, turn):
         return root
 
     for i in range(9):
-        if board[i] == 'B':
+        if board[i] == 'B':                 # next move in a blank space. Add the new move node to the tree recursively
             childBoard = board.copy()
             childBoard[i] = turn
             if turn == 'X':
@@ -76,6 +77,7 @@ def game_tree(board, turn):
     return root
 
 
+# Function that assigns rating for each node.
 def minimax(root):
     if not root.children:
         return
@@ -87,6 +89,7 @@ def minimax(root):
     root.rating = max(ratings) if root.turn == 'O' else min(ratings)
 
 
+# The bot move function
 def bot_move(board):
     tree = game_tree(board, 'O')
     minimax(tree)
@@ -101,11 +104,9 @@ def bot_move(board):
     return next_move.board_state
 
 
-# ─────────────────────────────────────────────
-#  MAIN
-# ─────────────────────────────────────────────
+# Main function
 def main():
-    board       = ['B'] * 9
+    board = ['B'] * 9
     example_arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
 
     print("\nWelcome to the Tic Tac Toe game!")
@@ -119,27 +120,24 @@ def main():
     print("If you would like the computer to start enter 'o'.")
     print()
 
-    # ── get valid starting choice ──
+    # Starting choice
     while True:
         turn = input("Enter 'x' or 'o': ").strip().lower()
         if turn in ('x', 'o'):
             break
         print("Invalid input. Please enter 'x' or 'o'.")
 
-    # ── main game loop ──
+    # Play as long as there are blank slots and win condition not met
     while game_state(board) == 'B':
 
         if turn == 'x':
-            # --- player's turn ---
             while True:
                 raw = input("Your turn. Which position would you like to place (0-8): ").strip()
-
                 if not raw.isdigit():
                     print("Invalid input. Please enter a number.")
                     continue
 
                 move = int(raw)
-
                 if move < 0 or move > 8:
                     print("Please pick a position between 0 and 8.")
                     continue
@@ -148,7 +146,7 @@ def main():
                     print("Position already taken! Choose an empty spot.")
                     continue
 
-                break   # valid move
+                break
 
             board[move] = 'X'
             turn = 'o'
@@ -156,7 +154,6 @@ def main():
             printBoard(board)
 
         else:
-            # --- bot's turn ---
             print("The computer will now play.")
             new_board = bot_move(board)
 
@@ -168,7 +165,6 @@ def main():
             print(f"Computer placed O at position {move}")
             printBoard(board)
 
-    # ── result ──
     result = game_state(board)
     if result == 1:
         print("The computer won!")
